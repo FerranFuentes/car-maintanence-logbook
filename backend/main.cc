@@ -4,15 +4,57 @@
 
 using namespace std;
 
+class Spare {
+    private:
+        string name;
+        string description;
+        int cost;
+        bool second_hand;
+    
+    public:
+        Spare(string nm, int c, bool sh): name(nm), cost(c), second_hand(sh) {}
+
+        //Getters
+
+        string getName() const {
+            return name;
+        }
+
+        string description() const {
+            return description;
+        }
+
+        int getCost() const {
+            return cost;
+        }
+
+        bool isSecondHand() const {
+            return second_hand;
+        }
+
+        //Setters
+
+        int setDescription(string desc) {
+            if (desc.size() > 0) {
+                description = desc;
+                return 0;
+            }
+            return 1;
+        }
+
+};
+
 class Repair {
     private:
+        string tittle;
+        string description;
         int day;
         int month;
         int year;
         int cost;
         int km;
-        string tittle;
-        string description;
+        vector<Spare> spares;
+
     public:
         Repair(int d, int m, int y, int c, int k, string t, string desc): day(d), month(m), year(y), cost(c), km(k), tittle(t), description(desc) {}
 
@@ -112,8 +154,9 @@ class Car {
 
         //Setters
 
-        void setAlias(string st) {
+        int setAlias(string st) {
             alias = st;
+            return 0;
         }
 
         //Others
