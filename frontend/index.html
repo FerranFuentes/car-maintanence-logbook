@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1B1D1E">
+<title>Celica Log</title>
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+    <div class="car-id">
+        <span class="car-alias" id="carAlias">—</span>
+        <span class="car-meta" id="carMeta">—</span>
+    </div>
+    <div class="car-odo">
+        <span class="odo-value" id="odoValue">0</span>
+        <span class="odo-label">km</span>
+    </div>
+    <button type="button" class="btn-ghost" id="carSelectorBtn">Coches</button>
+</header>
+
+<nav class="tabbar" id="tabbar">
+    <button class="tab-switch is-active" data-tab="inicio">Inicio</button>
+    <button class="tab-switch" data-tab="km">Km</button>
+    <button class="tab-switch" data-tab="averias">Averías</button>
+    <button class="tab-switch" data-tab="consumos">Consumos</button>
+    <button class="tab-switch" data-tab="piezas">Piezas</button>
+</nav>
+
+<main class="content">
+    <section id="carsScreen" class="cars-screen" hidden>
+        <div class="cars-header">
+            <div>
+                <p class="eyebrow">Garage</p>
+                <h2>Tu colección</h2>
+            </div>
+            <button type="button" class="btn-ghost" id="closeCarsScreen">Volver</button>
+        </div>
+
+        <div class="cars-summary">
+            <span>Selecciona el coche que quieres ver</span>
+            <button type="button" class="btn-primary" id="newCarFromCarsBtn">+ nuevo coche</button>
+        </div>
+
+        <div id="carsList" class="cars-list"></div>
+    </section>
+
+    <div id="appContent">
+        <section id="homePanel" class="home-panel">
+            <div class="car-viewport" id="carViewport">
+                <img id="carPhotoPreview" class="car-photo-preview" alt="Foto del coche" hidden>
+                <div id="carPhotoPlaceholder" class="car-photo-placeholder">Sube una foto de tu coche</div>
+                <button type="button" class="photo-upload-btn" id="carPhotoUploadBtn">Cambiar foto</button>
+                <input type="file" id="carPhotoInput" accept="image/*" hidden>
+            </div>
+            <div class="home-stats" id="homeStats"></div>
+        </section>
+
+        <div class="toolbar">
+            <input type="search" id="searchInput" class="search-input" placeholder="Buscar…">
+            <select id="sortSelect" class="sort-select">
+            <option value="fecha-desc">Más reciente</option>
+            <option value="fecha-asc">Más antiguo</option>
+            <option value="km-desc">Km ↓</option>
+            <option value="km-asc">Km ↑</option>
+            </select>
+            <button class="btn-primary" id="newEntryBtn">Nueva ficha</button>
+        </div>
+
+        <section id="chartPanel" class="chart-panel" hidden>
+            <div class="chart-panel-head">
+            <h2>Consumo</h2>
+            <span class="chart-panel-sub" id="chartSub">—</span>
+            </div>
+            <canvas id="consumoChart" height="140"></canvas>
+        </section>
+
+        <section id="entryList" class="entry-list"></section>
+        
+        <p id="emptyState" class="empty-state" hidden>
+        Nada por aquí todavía. Añade una ficha con «Nueva ficha». 
+        </p>
+    </div>
+</main>
+
+<dialog id="carDialog" class="entry-dialog">
+    <form id="carSelectForm">
+        <div class="dialog-head">
+            <h2>Selecciona tu coche</h2>
+            <button type="button" class="icon-btn" id="closeCarDialog" aria-label="Cerrar">✕</button>
+        </div>
+        <label class="field">
+            <span>Coche guardado</span>
+            <select id="carSelect"></select>
+        </label>
+        <div class="dialog-actions">
+            <button type="button" class="btn-ghost" id="newCarBtn">+ nuevo coche</button>
+            <div class="spacer"></div>
+            <button type="button" class="btn-ghost" id="cancelCarDialog">Cancelar</button>
+            <button type="submit" class="btn-primary">Ver coche</button>
+        </div>
+    </form>
+</dialog>
+
+<dialog id="carCreateDialog" class="entry-dialog">
+    <form id="carCreateForm">
+        <div class="dialog-head">
+            <h2>Nuevo coche</h2>
+            <button type="button" class="icon-btn" id="closeCarCreateDialog" aria-label="Cerrar">✕</button>
+        </div>
+
+        <label class="field">
+            <span>Alias</span>
+            <input type="text" id="carAliasInput" placeholder="p. ej. Mi Celica">
+        </label>
+
+        <div class="field-row">
+            <label class="field">
+                <span>Marca *</span>
+                <input type="text" id="carMakeInput" required placeholder="Toyota">
+            </label>
+            <label class="field">
+                <span>Modelo *</span>
+                <input type="text" id="carModelInput" required placeholder="Celica">
+            </label>
+        </div>
+
+        <div class="field-row">
+            <label class="field">
+                <span>Año *</span>
+                <input type="number" id="carYearInput" min="1900" max="2100" required>
+            </label>
+            <label class="field">
+                <span>Kilómetros *</span>
+                <input type="number" id="carKmInput" min="0" value="0" required>
+            </label>
+        </div>
+
+        <label class="field photo-field">
+            <span>Foto del coche</span>
+            <div class="car-create-photo-box">
+                <img id="carCreatePhotoPreview" class="car-create-photo-preview" alt="Vista previa de la foto" hidden>
+                <div id="carCreatePhotoPlaceholder" class="car-create-photo-placeholder">Añadir foto</div>
+            </div>
+            <input type="file" id="carPhotoInputCreate" accept="image/*" hidden>
+            <button type="button" class="btn-ghost secondary-upload-btn" id="carCreatePhotoBtn">Seleccionar imagen</button>
+        </label>
+
+        <div class="dialog-actions">
+            <div class="spacer"></div>
+            <button type="button" class="btn-ghost" id="cancelCarCreateDialog">Cancelar</button>
+            <button type="submit" class="btn-primary">Guardar coche</button>
+        </div>
+    </form>
+</dialog>
+
+<dialog id="entryDialog" class="entry-dialog">
+    <form id="entryForm">
+        <div class="dialog-head">
+        <h2 id="dialogTitle">Nueva ficha</h2>
+        <button type="button" class="icon-btn" id="closeDialog" aria-label="Cerrar">✕</button>
+        </div>
+    
+        <label class="field">
+        <span>Título</span>
+        <input type="text" id="fTitulo" required placeholder="p. ej. Cambio de embrague">
+        </label>
+    
+        <div class="field-row">
+        <label class="field">
+            <span>Fecha</span>
+            <input type="date" id="fFecha" required>
+        </label>
+        <label class="field" id="fKmWrap">
+            <span>Km</span>
+            <input type="number" id="fKm" min="0" placeholder="—">
+        </label>
+        </div>
+    
+        <label class="field" id="fCosteWrap" hidden>
+        <span>Coste (€)</span>
+        <input type="number" id="fCoste" min="0" step="0.01" placeholder="—">
+        </label>
+    
+        <label class="field">
+        <span>Notas</span>
+        <textarea id="fNotas" rows="3" placeholder="Detalles, taller, sensaciones…"></textarea>
+        </label>
+    
+        <div class="custom-fields" id="customFields"></div>
+        <button type="button" class="btn-ghost" id="addFieldBtn">+ añadir campo</button>
+    
+        <div class="dialog-actions">
+        <button type="button" class="btn-danger" id="deleteEntryBtn" hidden>Eliminar</button>
+        <div class="spacer"></div>
+        <button type="button" class="btn-ghost" id="cancelDialog">Cancelar</button>
+        <button type="submit" class="btn-primary" id="saveEntryBtn">Guardar</button>
+        </div>
+    </form>
+</dialog>
+
+<script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/"
+    }
+  }
+</script>
+<script src="store.js"></script>
+<script type="module" src="app.js"></script>
+</body>
+</html>
